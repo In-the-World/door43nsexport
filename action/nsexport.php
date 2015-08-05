@@ -76,6 +76,7 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
 
         $content = $this->output_tree($this->tree['nodes'][''], 1);
 
+        print_r($this->links);die;
         $urls = array_keys($this->links);
         $anchors = array_values($this->links);
         $content = str_replace($urls, $anchors, $content);
@@ -123,7 +124,7 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
 
         if(isset($node['content']))
             return;
-        
+
         $xhtml = p_wiki_xhtml($id);
         // Remove links to pad.door43.org
         $xhtml = preg_replace('/.*https:\/\/pad\.door43.*\n/', '', $xhtml);
