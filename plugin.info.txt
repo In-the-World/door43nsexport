@@ -1,0 +1,7 @@
+base   door43nsexport
+author Richard Mahn
+email  richard_mahn@wycliffeassociates.org
+date   2015-08-03
+name   Door43 Namespace Exporter
+desc   Exports all files for a namespace determined by the URL, followed by do=nsexport
+url    https://github.com/In-the-World/door43nsexport
