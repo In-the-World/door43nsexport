@@ -71,16 +71,7 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
         $this->rootId = getID();
 
         $this->populate_tree($this->rootId);
-
-#        print_r($this->tree);
-
-        $content = $this->output_tree($this->tree['nodes'][''], 1);
-
-        $urls = array_keys($this->links);
-        $anchors = array_values($this->links);
-        $content = str_replace($urls, $anchors, $content);
-
-        echo $content;
+        $this->output_tree($this->tree['nodes'][''], 1);
 
         echo '
 </body>
@@ -123,18 +114,8 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
 
         if(isset($node['content']))
             return;
-        
+
         $xhtml = p_wiki_xhtml($id);
-        // Remove links to pad.door43.org
-        $xhtml = preg_replace('/.*https:\/\/pad\.door43.*\n/', '', $xhtml);
-        // Remove blog of tags
-        $xhtml = preg_replace('/<div class="tags"><span>\n.*\n<\/span><\/div>\n/s', '', $xhtml);
-        // Remove epady links
-        $xhtml = preg_replace('/.*publish-epady.*\n/', '', $xhtml);
-        // Remove empty paragraphs
-        $xhtml = preg_replace('/\n<p>\n<\/p>/', '', $xhtml);
-        // Remove hr's
-        $xhtml = preg_replace('/\n<hr\s*\/>/', '', $xhtml);
 
         $node['content'] = $xhtml;
 // if(preg_match('/(<h\d[ >].+?<\/h\d>)/', $xhtml, $matches)) {
@@ -143,7 +124,8 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
 
         preg_match('/<h\d[^>]*? id="(.*?)"/', $xhtml, $match);
         if($match){
-            $this->links['"/'.str_replace(':', '/', $id).'"'] = '#'.$match[1];
+            $this->links['"/'.str_replace(':', '/', $id).'"'] = '"#'.$match[1].'"';
+            $this->links['"/'.str_replace(':', '/', $id).'#'] = '"#';
         }
 
         $node['links'] = $this->get_links($xhtml);
@@ -168,7 +150,7 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
     }
 
     public function get_links($content){
-        preg_match_all('/href="\/'.str_replace(':','\/',$this->rootId).'\/(.*?)"/', $content, $matches);
+        preg_match_all('/href=[\'"]\/'.str_replace(':','\/',$this->rootId).'\/(.*?)[#\'"]/', $content, $matches);
 
         if($matches && count($matches) > 1) {
             return $matches[1];
@@ -188,6 +170,25 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
                 $content = preg_replace('/<h' . $i . '([ >].+?)<\/h' . $i . '>/', '<h' . ($level + 1) . '$1</h' . ($level + 1) . '>', $content, 1);
             }
             $content = preg_replace('/<h\d([ >].+?)<\/h\d>/', '<h' . $level . '$1</h' . $level . '>', $content, 1);
+
+            // Remove links to pad.door43.org
+            $content = preg_replace('/.*https:\/\/pad\.door43.*\n/', '', $content);
+            // Remove blog of tags
+            $content = preg_replace('/<div class="tags"><span>\n.*\n<\/span><\/div>\n/s', '', $content);
+            // Remove epady links
+            $content = preg_replace('/.*publish-epady.*\n/', '', $content);
+            // Remove empty paragraphs
+            $content = preg_replace('/\n<p>\n<\/p>/', '', $content);
+            // Remove hr's
+            $content = preg_replace('/\n<hr\s*\/>/', '', $content);
+
+            // Change all links that have content in this export to use their id
+            $urls = array_keys($this->links);
+            $anchors = array_values($this->links);
+            $content = str_replace($urls, $anchors, $content);
+
+            # make sure all other links that are local from root are given an absolute URL
+#            $content = preg_replace('/(href|src)=([\'"])\//i', '$1=$2http://'.$_SERVER['SERVER_NAME'].'/', $content);
 
             echo $content;
         }
