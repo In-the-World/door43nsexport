@@ -166,10 +166,12 @@ class action_plugin_door43nsexport_nsexport extends DokuWiki_Action_Plugin {
 
         if(isset($node['content'])) {
             $content = $node['content'];
-            for ($i = 1; $i <= 3; ++$i) {
+            for ($i = 1; $i <= 2; ++$i) {
                 $content = preg_replace('/<h' . $i . '([ >].+?)<\/h' . $i . '>/', '<h' . ($i + 1) . '$1</h' . ($i + 1) . '>', $content, 1);
             }
-            $content = preg_replace('/<h\d([ >].+?)<\/h\d>/', '<h' . $level . '$1</h' . $level . '>', $content, 1);
+            if($level <= 2) {
+                $content = preg_replace('/<h\d([ >].+?)<\/h\d>/', '<h' . $level . '$1</h' . $level . '>', $content, 1);
+            }
 
             // Remove links to pad.door43.org
             $content = preg_replace('/.*https:\/\/pad\.door43.*\n/', '', $content);
